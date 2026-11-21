@@ -22975,6 +22975,7 @@ export const DICIONARIO: Traducoes = {
   "Anotação salva.": { es: "Nota guardada." },
   "Adicionar anotação": { es: "Agregar nota" },
   "Nenhuma anotação sobre este cliente.": { es: "Ninguna nota sobre este cliente." },
+  "Dias na etapa atual": { es: "Días en la etapa actual" },
   "Só quem faz parte da equipe desta empresa pode assumir a conversa. No modo suporte, entre com a conta de um atendente ou adicione a sua conta à equipe.": { es: "Solo quien forma parte del equipo de esta empresa puede asumir la conversación. En el modo soporte, entra con la cuenta de un agente o agrega tu cuenta al equipo." },
   "Ordem da fila": { es: "Orden de la cola" },
   "Ordem:": { es: "Orden:" },
