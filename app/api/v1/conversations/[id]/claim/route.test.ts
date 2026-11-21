@@ -214,3 +214,22 @@ describe("POST /api/v1/conversations/[id]/claim — o negócio aberto é do banc
     expect(registrarTrocaDeComando).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("assumir sendo quem NÃO é da equipe (modo suporte)", () => {
+  it("a recusa do banco vira 403 dizendo o motivo, não um 500 genérico", async () => {
+    const cliente = clienteFalso(estado) as unknown as { rpc: (n: string, p: Linha) => Promise<unknown> };
+    cliente.rpc = async (nome: string) =>
+      nome === "fn_conversation_assign"
+        ? { data: null, error: { message: "assignee_not_eligible_member" } }
+        : { data: null, error: null };
+    vi.mocked(createClient).mockResolvedValue(cliente as unknown as SupabaseClient);
+
+    const res = await POST(req(), params);
+
+    expect(res.status).toBe(403);
+    const corpo = (await res.json()) as { error: { code: string; message: string } };
+    expect(corpo.error.code).toBe("forbidden");
+    expect(corpo.error.message).toContain("equipe desta empresa");
+    expect(audit).not.toHaveBeenCalled();
+  });
+});

@@ -65,7 +65,21 @@ export async function POST(req: NextRequest, ctx: RouteCtx): Promise<Response> {
     requestId,
     expectedAssignee: input.expected_assignee,
   });
-  if (error) return fail("internal_error", error.message, 500, { requestId });
+  if (error) {
+    // A conversa só pode ter como dono um MEMBRO da empresa (`agent`+). Quem
+    // entra pelo modo suporte (administrador da instalação) não é membro, e o
+    // banco recusa com `assignee_not_eligible_member` — antes isso virava um
+    // 500 genérico ("erro ao assumir") sem dizer o porquê.
+    if (error.message?.includes("assignee_not_eligible_member")) {
+      return fail(
+        "forbidden",
+        t("Só quem faz parte da equipe desta empresa pode assumir a conversa. No modo suporte, entre com a conta de um atendente ou adicione a sua conta à equipe."),
+        403,
+        { requestId },
+      );
+    }
+    return fail("internal_error", error.message, 500, { requestId });
+  }
   if (!conv) return fail("state_conflict", t("Outro atendente já assumiu."), 409, { requestId });
 
   return ok(conv, { requestId });
