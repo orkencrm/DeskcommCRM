@@ -64,6 +64,7 @@ import { phoneForDisplay } from "@/lib/channels/phone-variants";
 import { AtalhosDoNegocio } from "@/components/kanban/AtalhosDoCard";
 import type { AtalhoDoCard } from "@/lib/leads/atalhos-do-card";
 import { VendasDoNegocio } from "@/components/vendas/VendasDoNegocio";
+import { AnotacoesDoCliente } from "@/components/inbox/AnotacoesDoCliente";
 import { BotaoRegistrarVenda } from "@/components/vendas/BotaoRegistrarVenda";
 import { useVendasDoNegocio } from "@/hooks/vendas/useVendasRegistradas";
 
@@ -1398,6 +1399,20 @@ export function CRMSidePanel({
       editor continuam os mesmos (`ChipDeEtiqueta`, `ContactTagsEditor`), na
       mesma posição do fluxo: logo abaixo do contato.
     */
+    /* O bloco de notas da equipe sobre o cliente (Orken CRM) — o mesmo campo
+       "Observações da equipe" da aba Diagnóstico da ficha. */
+    anotacoes: contactId && !contact?.is_anonymized ? (
+      <>
+        <AnotacoesDoCliente
+          key={contactId}
+          contactId={contactId}
+          usuarioId={user.id}
+          podeEditar={podeEditarValor && !readonly}
+        />
+        <Separator />
+      </>
+    ) : null,
+
     "tags-do-contato": (
       <section data-testid="inbox-tags-do-contato" className="space-y-2">
         {tags.length > 0 && (
