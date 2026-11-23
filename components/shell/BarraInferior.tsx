@@ -62,7 +62,8 @@ export const BARRA_INFERIOR: PecaDoRodape = {
  *
  * A escolha segue quem usa o produto no celular: alguém atendendo fora da mesa.
  * Inbox é a conversa; Funis é onde o negócio anda; Agenda é o compromisso de
- * hoje; Desempenho é o número que se confere no caminho. A lista tem sobra
+ * hoje; Vendas é o número que se confere no caminho (fork orken: Vendas no
+ * lugar de Desempenho, que vira reserva). A lista tem sobra
  * depois dessas quatro porque toda uma dessas portas pode estar fechada — o
  * plano da empresa pode não incluir Análise, a organização pode não ter ligado
  * a Agenda —, e uma barra com um buraco no meio é pior que uma barra com outra
@@ -72,6 +73,7 @@ const PREFERIDAS = [
   "/app/inbox",
   "/app/kanban",
   "/app/agenda",
+  "/app/vendas",
   "/app/metrics",
   "/app/contacts",
   "/app/ai/cases",

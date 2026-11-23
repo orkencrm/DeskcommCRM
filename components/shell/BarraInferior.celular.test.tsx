@@ -81,6 +81,13 @@ describe("a barra de abas do celular", () => {
     expect(screen.getByTestId("mais").getAttribute("data-como-aba")).toBe("true");
   });
 
+  it("fork orken: as quatro abas são Inbox, Funis, Agenda e Vendas (não Desempenho)", () => {
+    estado.role = "admin";
+    montar();
+    const hrefs = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
+    expect(hrefs).toEqual(["/app/inbox", "/app/kanban", "/app/agenda", "/app/vendas"]);
+  });
+
   it("a aba da conversa continua acesa dentro de `/app/inbox/[id]`", () => {
     estado.role = "admin";
     estado.caminho = "/app/inbox/abc-123";
