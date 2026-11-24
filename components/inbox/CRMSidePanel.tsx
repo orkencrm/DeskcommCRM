@@ -60,8 +60,8 @@ import { rotuloParaAEquipe } from "@/lib/contacts/rotulo-do-contato";
 import { phoneForDisplay } from "@/lib/channels/phone-variants";
 import { AtalhosDoNegocio } from "@/components/kanban/AtalhosDoCard";
 import type { AtalhoDoCard } from "@/lib/leads/atalhos-do-card";
-import { VendasDoNegocio } from "@/components/vendas/VendasDoNegocio";
 import { AnotacoesDoCliente } from "@/components/inbox/AnotacoesDoCliente";
+import { VendasDoNegocio } from "@/components/vendas/VendasDoNegocio";
 
 interface Props {
   conversation: ConversationWithContact | null;
@@ -568,9 +568,9 @@ function InboxLeadEditor({
         valores={ativo.custom_fields ?? {}}
         onSalvo={onSalvo}
       />
-      {/* Tudo que é FUNIL fica acima (etapa, abrir, levar, campos); tudo que é
-          VENDA fica aqui embaixo, junto (Orken CRM). Antes o bloco de vendas
-          ficava no meio dos botões do funil. */}
+      {/* Tudo que é FUNIL fica acima (etapa, abrir, levar, campos); o VALOR do
+          negócio fica aqui embaixo, separado por uma linha. Antes ele ficava
+          no meio dos botões do funil. */}
       <div className="border-t border-border pt-3">
         <ValorDoNegocio
           key={`valor-${ativo.id}`}
@@ -621,7 +621,7 @@ function ValorDoNegocio({
   podeEditar: boolean;
   onSalvo: () => void;
 }) {
-  // Uma porta só para "quanto vendeu" (Orken CRM): o botão "Registrar venda"
+  // Uma porta só para "quanto vendeu": o botão "Registrar venda"
   // abre valor, data, tags e observação, e logo abaixo ficam as vendas já
   // registradas, com data e lixeira. O Valor do negócio vira a soma delas.
   // Digitar o Valor e salvar gravava o negócio e NÃO entrava em Vendas — foi
@@ -684,7 +684,7 @@ function EtapaDoNegocio({
 
   return (
     <div className="space-y-1" data-testid="inbox-etapa-do-negocio">
-      {/* Só o seletor de etapa (Orken CRM): a barra rolável de etapas que
+      {/* Só o seletor de etapa: a barra rolável de etapas que
           ficava aqui em cima repetia a mesma escolha e poluía a coluna estreita
           do Inbox. No dossiê do quadro a barra continua. O que só a barra
           mostrava — os dias na etapa atual — fica aqui, ao lado do rótulo (é
@@ -1283,7 +1283,7 @@ export function CRMSidePanel({
       editor continuam os mesmos (`ChipDeEtiqueta`, `ContactTagsEditor`), na
       mesma posição do fluxo: logo abaixo do contato.
     */
-    /* O bloco de notas da equipe sobre o cliente (Orken CRM) — o mesmo campo
+    /* O bloco de notas da equipe sobre o cliente — o mesmo campo
        "Observações da equipe" da aba Diagnóstico da ficha. */
     anotacoes: contactId && !contact?.is_anonymized ? (
       <>

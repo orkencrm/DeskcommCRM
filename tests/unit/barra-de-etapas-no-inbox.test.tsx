@@ -179,7 +179,7 @@ beforeEach(() => {
 });
 
 /*
- * Orken CRM: no painel da conversa a barra rolável de etapas SAIU — ela repetia
+ * No painel da conversa a barra rolável de etapas SAIU — ela repetia
  * a escolha do seletor "Etapa do funil" e poluía a coluna estreita do Inbox. O
  * seletor basta (ganho e perda continuam nele, com o motivo da perda). No
  * dossiê do quadro a barra segue: `barra-de-etapas.test.tsx`.
@@ -210,12 +210,12 @@ describe("painel da conversa — só o seletor de etapa", () => {
     expect(screen.queryByTestId("inbox-dias-na-etapa")).not.toBeInTheDocument();
   });
 
-  it("as vendas vêm DEPOIS de tudo que é do funil", async () => {
+  it("o valor do negócio vem DEPOIS de tudo que é do funil", async () => {
     servir({ stage_id: "s-b", etapas_do_funil: ETAPAS, stage_changed_at: TRES_DIAS_E_POUCO });
     renderPainel();
 
     const abrir = await screen.findByTestId("inbox-abrir-no-funil");
-    const vendas = await screen.findByTestId("inbox-valor-do-negocio");
-    expect(abrir.compareDocumentPosition(vendas) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const valor = await screen.findByTestId("inbox-valor-do-negocio");
+    expect(abrir.compareDocumentPosition(valor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

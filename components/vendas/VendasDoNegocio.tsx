@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * O bloco "Vendas" de um negócio (Orken CRM) — o MESMO no negócio aberto pelo
+ * O bloco "Vendas" de um negócio — o MESMO no negócio aberto pelo
  * funil e no painel do Inbox.
  *
  * Uma porta só para "quanto vendeu": em cima, o botão "Registrar venda", que
@@ -56,7 +56,7 @@ export function VendasDoNegocio({
 
   const lista = Array.isArray(vendas) ? vendas : [];
   const dia = new Intl.DateTimeFormat(tagDeIdioma, { dateStyle: "short", timeZone: "UTC" });
-  const total = lista.reduce((soma, v) => soma + (v.moeda === moeda ? v.valor_cents : 0), 0);
+  const total = lista.reduce((soma, v) => soma + (v.currency === moeda ? v.valor_cents : 0), 0);
   const texto = compacto ? "text-xs" : "text-sm";
 
   return (
@@ -88,7 +88,7 @@ export function VendasDoNegocio({
               <li key={v.id} className={cn("flex items-start justify-between gap-2 p-2", texto)} data-testid="venda-registrada">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="font-medium tabular-nums">{formatCents(v.valor_cents, v.moeda)}</span>
+                    <span className="font-medium tabular-nums">{formatCents(v.valor_cents, v.currency)}</span>
                     <span className="text-xs text-text-muted">{dia.format(new Date(`${v.data}T00:00:00Z`))}</span>
                   </div>
                   {v.tags.length > 0 && (

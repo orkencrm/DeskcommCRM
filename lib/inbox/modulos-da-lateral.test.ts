@@ -38,7 +38,7 @@ import {
  */
 const LATERAL_DE_HOJE = [
   "contato",
-  // O bloco de notas da equipe (Orken CRM): logo abaixo do contato, à mão.
+  // O bloco de notas da equipe: logo abaixo do contato, à mão.
   "anotacoes",
   "tags-do-contato",
   "carteira",

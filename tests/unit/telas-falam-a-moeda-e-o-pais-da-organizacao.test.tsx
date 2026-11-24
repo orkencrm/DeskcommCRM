@@ -84,7 +84,7 @@ afterEach(() => {
 const FUNIL = "33333333-3333-4333-8333-333333333333";
 
 describe("o valor do negócio usa a moeda certa — e o eco embaixo do campo também", () => {
-  // Orken CRM: o dossiê não tem mais o campo "Valor" digitado — o valor nasce
+  // O dossiê não tem mais o campo "Valor" digitado — o valor nasce
   // das vendas registradas (bloco Vendas). Os casos de moeda do campo saíram
   // com ele; a moeda da VENDA é a do negócio (ver components/vendas).
   it("negócio NOVO nasce na moeda da organização", () => {

@@ -1,6 +1,6 @@
 /**
  * GET /api/v1/reports/painel-de-vendas — os cartões e a série do painel de
- * vendas (Orken CRM).
+ * vendas.
  *
  * A conta e as réguas (o que é venda, valor vendido, ticket médio, conversão e
  * série) estão em `lib/relatorios/painel-de-vendas.ts`, que é o contrato desta
@@ -132,7 +132,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   const registradas = await lerPaginado<VendaRegistradaDoPainel>(async (inicio, fim, contar) => {
     const { data, error, count } = await supabase
       .from("vendas_registradas")
-      .select("id, lead_id, contact_id, valor_cents, moeda, data, tags, created_by", contar ? { count: "exact" } : undefined)
+      .select("id, lead_id, contact_id, valor_cents, currency, data, tags, created_by", contar ? { count: "exact" } : undefined)
       .eq("organization_id", org.orgId)
       .gte("data", de)
       .lte("data", ate)

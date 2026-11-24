@@ -502,10 +502,12 @@ export function InboxLayout({
    * discorda do filtro, porque os dois usam a mesma convenção.
    */
   const { data: automaticoDaOrg, isLoading: automaticoCarregando } = useAutomaticoAtivo();
-  // A ORDEM DA FILA, por aparelho. "Mais recentes" é o padrão: com esperas
-  // antigas acumuladas, a fila de banco jogava o contato novo para depois da
-  // primeira página e o atendente não o via. Lida num efeito (nunca no
-  // `useState`), para o primeiro paint do servidor e do navegador baterem.
+  // A ORDEM DA FILA, por aparelho. Fork orken: "Mais recentes" é o padrão (o
+  // contato novo aparece em cima); a oficial deixa "Esperando há mais tempo"
+  // como padrão. Quem escolhe a outra ordem fica com ela (#5118): com esperas antigas acumuladas, a ordem por espera jogava o
+  // contato novo para depois da primeira página e o atendente não o via. Lida
+  // num efeito (nunca no `useState`), para o primeiro paint do servidor e do
+  // navegador baterem.
   const [ordemDaFila, setOrdemDaFila] = useState<"recentes" | "espera">("recentes");
   useEffect(() => {
     try {
@@ -1053,7 +1055,7 @@ export function InboxLayout({
         )}
         {filterValue.tab === "unassigned" && (
           <div
-            className="flex items-center gap-1 border-b border-border px-3 py-1.5 text-xs"
+            className="flex flex-wrap items-center gap-1 border-b border-border px-3 py-1.5 text-xs"
             role="group"
             aria-label={t("Ordem da fila")}
             data-testid="ordem-da-fila"
@@ -1072,7 +1074,10 @@ export function InboxLayout({
                 data-testid={`ordem-da-fila-${valor}`}
                 onClick={() => escolherOrdemDaFila(valor)}
                 className={cn(
-                  "rounded-full px-2 py-0.5 transition-colors",
+                  // Mesma altura de toque dos chips "Não lidos"/"Grupos" (32 px);
+                  // o rótulo não quebra — quem quebra é a faixa, entre os botões.
+                  "h-8 shrink-0 whitespace-nowrap rounded-full px-3 transition-colors",
+                  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   ordemDaFila === valor
                     ? "bg-accent-soft font-medium text-accent"
                     : "text-text-muted hover:bg-surface-elevated hover:text-text",

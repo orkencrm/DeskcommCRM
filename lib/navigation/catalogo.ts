@@ -18,7 +18,19 @@ import type { CapacidadeDaOrganizacao } from "@/lib/organizacao/capacidades";
  * Doutrina: docs/doctrine/sistema-vivo.md — "por qual porta se chega até mim?"
  */
 
-export type NavGroupId = "atendimento" | "crm" | "ia" | "canais" | "analise" | "organizacao";
+/**
+ * `modulos` é o único id que NÃO está em `NAV_GROUPS`: o grupo "Módulos" é GERADO em tempo de
+ * execução (um item por módulo conectado ativo da organização, Spec 33 F4), por
+ * `sidebarGroups`/`searchable` em `registry.ts`. Nenhuma entrada de `NAV_CATALOG` pode usá-lo.
+ */
+export type NavGroupId =
+  | "atendimento"
+  | "crm"
+  | "ia"
+  | "canais"
+  | "analise"
+  | "organizacao"
+  | "modulos";
 
 export interface NavGroup {
   id: NavGroupId;
@@ -943,13 +955,13 @@ export const NAV_CATALOG = [
     modulo: "honorarios",
   },
   {
-    // ── O PAINEL DE VENDAS (Orken CRM) ─────────────────────────────────────
+    // ── O PAINEL DE VENDAS ─────────────────────────────────────
     //
     // "Quanto vendi" numa tela só: cartões de Vendas, Valor vendido, Ticket
     // médio e Conversão, o gráfico do período e a lista das vendas por funil e
-    // tag. NO SIDEBAR de propósito: o número estava espalhado entre Faturamento
-    // (comandas) e Desempenho (atendentes), e quem vende pelo WhatsApp não o
-    // achava. Fonte: os negócios GANHOS (`lib/relatorios/painel-de-vendas.ts`).
+    // tag. Fonte: os negócios GANHOS (`lib/relatorios/painel-de-vendas.ts`).
+    // Fork orken: Vendas FICA no menu lateral (a oficial a tirou, por causa do
+    // teto de 15 itens). Ao atualizar, manter `sidebar: true` aqui.
     href: "/app/vendas",
     label: "Vendas",
     description: "Quanto você vendeu, o ticket médio e a conversão, com o gráfico do período.",

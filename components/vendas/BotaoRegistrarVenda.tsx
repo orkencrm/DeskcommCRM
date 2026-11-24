@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * O "+" de venda no card do funil (Orken CRM).
+ * O "+" de venda no card do funil.
  *
  * Um botão pequeno ao lado do menu do card que abre "Registrar venda" sem abrir
  * o negócio. Guarda o próprio estado — o card é `memo` e arrastável, e um

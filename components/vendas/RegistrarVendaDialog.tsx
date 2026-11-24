@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * "Registrar venda" (Orken CRM) — valor, data, tags e observação.
+ * "Registrar venda" — valor, data, tags e observação.
  *
  * Abre do botão "+" do card do funil e da seção "Vendas" do negócio (no funil e
  * no Inbox). A venda conta no painel de vendas em qualquer etapa do card, e o

@@ -1,7 +1,7 @@
 /**
  * A FILA PODE MOSTRAR O CONTATO QUE ACABOU DE CHEGAR EM CIMA.
  *
- * Medido na VIA BABY em 21/11/2026: 52 esperas antigas na Fila, e a conversa
+ * Medido numa instalação em produção em 21/11/2026: 52 esperas antigas na Fila, e a conversa
  * nova ficou na posição 53 — fora da primeira página (50). O atendente abria a
  * Fila e não via o contato novo, que só aparecia em "Todas".
  *

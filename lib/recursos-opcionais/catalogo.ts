@@ -34,6 +34,7 @@ import { MODULOS_AINDA_NAO_LIGAVEIS, MODULOS_OPCIONAIS, MODULOS_OPCIONAIS_POR_FL
 import { moduloDoCatalogo } from "@/lib/modulos/catalogo";
 import { NAV_CATALOG, type NavMetadata } from "@/lib/navigation/catalogo";
 import { vendaPeloCanalLigada } from "@/lib/conversoes/venda-pelo-canal";
+import { bloqueioDeChamadasLigado } from "@/lib/organizacao/bloqueio-de-chamadas";
 import { lerConfigDoJev } from "@/lib/ai/decisao/config";
 import { capacidadesLigadas, type CapacidadeDaOrganizacao } from "@/lib/organizacao/capacidades";
 import { conversaFicaComQuemAtendeu } from "@/lib/schemas/routing";
@@ -216,6 +217,10 @@ const TEXTO_DO_MODULO: Record<ModuloOpcional, { nome: string; oQueFaz: string }>
     nome: "Catálogo sincronizado por feed",
     oQueFaz:
       "O catálogo acompanha sozinho o feed que o sistema de estoque da revenda publica: a cada 2 horas cria, atualiza e desativa produtos, sem apagar nenhum.",
+  },
+  menu_de_atendimento: {
+    nome: "Menu de atendimento sem IA",
+    oQueFaz: "A primeira mensagem recebe um menu com opções numeradas e o cliente escolhe por número — fila, pessoa ou arquivo — sem nenhuma resposta gerada por IA.",
   },
 };
 
@@ -640,6 +645,16 @@ const DA_EMPRESA: RecursoOpcional[] = [
     padrao: "desligado",
     quemDecide: "admin",
     href: "/app/settings/security",
+  },
+  {
+    id: "bloqueio_de_chamadas",
+    nome: "Bloquear chamadas recebidas",
+    oQueFaz: "Recusa sozinha a ligação de voz que chega no WhatsApp dos números da empresa.",
+    nivel: "organizacao",
+    padrao: "desligado",
+    quemDecide: "admin",
+    href: "/app/settings/security",
+    ler: peloSettings(bloqueioDeChamadasLigado),
   },
   {
     id: "tronco_sip",

@@ -127,7 +127,7 @@ beforeEach(() => {
 });
 
 /*
- * Orken CRM: o Valor do negócio deixou de ser digitado no Inbox. Digitar e
+ * O Valor do negócio deixou de ser digitado no Inbox. Digitar e
  * salvar gravava o negócio e NÃO entrava em Vendas — a equipe via o número
  * parado na caixa e a venda em lugar nenhum. Agora a porta é uma só: o botão
  * "Registrar venda", com as vendas já registradas logo abaixo, e o Valor do

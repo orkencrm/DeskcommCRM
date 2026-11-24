@@ -158,7 +158,7 @@ export function LeadFieldsForm({ lead, pipelineId, fieldDefs = [], onSaved, onCa
     const patch: Record<string, unknown> = {
       title: values.title.trim(),
       description: values.description.trim() ? values.description.trim() : null,
-      // O Valor NÃO viaja daqui (Orken CRM): ele nasce das vendas registradas
+      // O Valor NÃO viaja daqui: ele nasce das vendas registradas
       // (o "Registrar venda" ao lado) e o banco grava a soma. Um Salvar com a
       // ficha aberta antes da venda apagaria a soma.
       ...leitura.trio,
@@ -208,7 +208,7 @@ export function LeadFieldsForm({ lead, pipelineId, fieldDefs = [], onSaved, onCa
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {/* O Valor saiu daqui (Orken CRM): ele nasce das vendas registradas, no
+          {/* O Valor saiu daqui : ele nasce das vendas registradas, no
               bloco Vendas do negócio — e o card mostra a soma. */}
           <div className="space-y-2">
             <Label htmlFor="expected_close_date">{t("Fechamento previsto")}</Label>

@@ -96,6 +96,14 @@ export const MODULOS_OPCIONAIS = [
   "canal_bot",
   "campanha_por_email",
   "revisao_por_km",
+  // #4594 (fatia 1): o menu de boas-vindas com opções numeradas. Assume a
+  // ENTRADA da conversa sem chamar modelo nenhum — é o atendimento de quem
+  // não quer gastar token para receber "bom dia". Entra desligado porque muda
+  // quem responde primeiro, e quem já atende por IA ou à mão não pode acordar
+  // com um menu que não configurou.
+  "menu_de_atendimento",
+  // #4461/#4613 (main): agências administram clientes; catálogo por feed.
+  // O `amigo` é módulo de TABELA — entra na lista geral, nunca na de flag.
   "agencias",
   "catalogo_por_feed",
   "amigo",
@@ -132,6 +140,7 @@ export const MODULOS_OPCIONAIS_POR_FLAG = [
   "canal_bot",
   "campanha_por_email",
   "revisao_por_km",
+  "menu_de_atendimento",
   "agencias",
   "catalogo_por_feed",
 ] as const satisfies readonly ModuloOpcional[];
@@ -150,6 +159,15 @@ export const MODULOS_OPCIONAIS_POR_FLAG = [
  *    capacidade que a empresa use.
  *  - `honorarios` e `financeiro` já ficam fora por mecanismo: são módulos de
  *    TABELA (ADR-0002), provisionados por instalação (F3 do #3868).
+ *
+ * `catalogo_por_feed` entrou na camada no #4871 (F2), junto com o cron que o
+ * consome: é um módulo por FLAG cujo efeito é o SERVIDOR sair para a internet a
+ * cada 2 h e reescrever preço do catálogo de UMA empresa. Numa instalação que
+ * hospeda várias, a exceção da empresa é o que impede o feed da que desligou de
+ * continuar sendo buscado. `cadencias` NÃO entra: é módulo de TABELA, e desligar
+ * por empresa ali é a mesma conversa de `honorarios`/`financeiro` (F3) — o que a
+ * empresa desliga hoje é a capacidade dela (`settings.cadencias.enabled`), já
+ * lida por `cadenciasLigadas`.
  */
 export const MODULOS_POR_EMPRESA = [
   "banco_externo",
@@ -161,6 +179,7 @@ export const MODULOS_POR_EMPRESA = [
   "conferir_whatsapp",
   "mcp_por_agente",
   "cold_call",
+  "catalogo_por_feed",
 ] as const satisfies readonly (typeof MODULOS_OPCIONAIS_POR_FLAG)[number][];
 export type ModuloPorEmpresa = (typeof MODULOS_POR_EMPRESA)[number];
 
@@ -249,6 +268,12 @@ export const CHAVE_DO_MODULO: Record<(typeof MODULOS_OPCIONAIS_POR_FLAG)[number]
   // Desligado, o km gravado não projeta nada e o roteiro não faz consulta a mais
   // (`lib/revisao-por-km/modulo.ts`).
   revisao_por_km: "MODULO_REVISAO_POR_KM",
+  // #4594 (fatia 1): o menu de atendimento sem IA. A chave da INSTALAÇÃO é a
+  // porta de fora; a da empresa é `settings.menu_de_atendimento.ativa`. As duas
+  // são necessárias — o administrador do servidor decide se oferece, a empresa
+  // decide se usa. Desligada aqui, `atenderMenuSemIa` devolve `tratado: false`
+  // e a mensagem segue o caminho de hoje (`lib/atendimento/menu/atender.ts`).
+  menu_de_atendimento: "MODULO_MENU_DE_ATENDIMENTO",
   // Doc 321 (1A): a agência que administra as empresas dos clientes (#4034, de
   // @micaelecamily8-cyber). É a única porta DE PROPÓSITO entre empresas, e serve
   // a quem revende o CRM como agência, não à maioria. Desligado, as rotas de
@@ -299,6 +324,55 @@ export async function modulosLigados(
   const desligados = daEmpresa === null ? null : daEmpresa.ok ? daEmpresa.desligados : "todos";
   const flags = desligados === "todos" ? [] : porFlag.filter((m) => !desligados?.has(m));
   return [...flags, ...porTabela];
+}
+
+/**
+ * As EMPRESAS que desligaram um módulo, em UMA leitura — para os TRABALHOS DE
+ * FUNDO (#4871).
+ *
+ * Um cron não tem "a empresa do request": a mesma execução percorre muitas
+ * empresas (`proposal-acceptance-rate` lê `organizations` inteira; o tick da
+ * prospecção pega até 20 organizações por rodada). Perguntar
+ * `modulosLigados(db, org)` dentro do laço custaria três idas ao banco por
+ * empresa, a cada minuto; esta leitura resolve a rodada inteira de uma vez, e
+ * a decisão de cada empresa passa a ser uma consulta em memória.
+ *
+ * Devolve só as empresas que TÊM linha e NÃO estão `ligado` — a mesma régua de
+ * `modulosDesligadosNaEmpresa`: só `ligado` liga. Empresa sem linha não aparece,
+ * porque ela HERDA a instalação; e a instalação continua sendo o TETO de quem
+ * chama, que segue consultando `modulosLigados(db)` sem organização.
+ *
+ * `null` = a leitura falhou, e é DIFERENTE de um `Set` vazio de propósito: vazio
+ * é "ninguém desligou", `null` é "não sei" — e quem grava aviso ou fala com o
+ * cliente não pode tratar "não sei" como "pode". Falha fechada, como o
+ * `ok:false` de `modulosLigados`: o chamador não processa ninguém.
+ */
+export async function empresasComModuloDesligado(
+  db: SupabaseClient,
+  modulo: ModuloPorEmpresa,
+): Promise<Set<string> | null> {
+  try {
+    const { data, error } = await db
+      .from("organization_modules")
+      .select("organization_id, estado")
+      .eq("modulo", modulo);
+    if (error) {
+      logger.warn("módulos da empresa: leitura em lote recusada — ninguém será processado nesta rodada", {
+        modulo,
+        codigo: error.code,
+        detalhe: error.message,
+      });
+      return null;
+    }
+    const linhas = (data ?? []) as Array<{ organization_id: string; estado: string }>;
+    return new Set(linhas.filter((l) => l.estado !== LIGADO).map((l) => l.organization_id));
+  } catch (erro) {
+    logger.warn("módulos da empresa: leitura em lote falhou — ninguém será processado nesta rodada", {
+      modulo,
+      detalhe: erro instanceof Error ? erro.message : String(erro),
+    });
+    return null;
+  }
 }
 
 /** As linhas da EMPRESA que tiram módulo (só `desligado` sai da lista; `ligado`

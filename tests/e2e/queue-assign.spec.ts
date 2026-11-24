@@ -91,6 +91,9 @@ test.describe("G5-03 — fila com posição + atribuição", () => {
     // (1) Na Fila: a conversa aparece com posição (Nº) + "Aguardando há X".
     const queueItem = page.getByRole("button").filter({ hasText: q.contact_name });
     await expect(queueItem).toBeVisible({ timeout: 15_000 });
+    // Fork orken: o padrão da Fila é "Mais recentes" (sem posição). A posição só
+    // existe na ordem "Esperando há mais tempo".
+    await page.getByTestId("ordem-da-fila-espera").click();
     await expect(queueItem.getByText(/^\d+º$/)).toBeVisible();
     await expect(queueItem.getByText(/Aguardando/)).toBeVisible();
     await page.screenshot({

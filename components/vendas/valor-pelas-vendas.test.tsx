@@ -1,5 +1,5 @@
 /**
- * O NEGÓCIO ABERTO NÃO TEM MAIS O "VALOR" DIGITADO (Orken CRM).
+ * O NEGÓCIO ABERTO NÃO TEM MAIS O "VALOR" DIGITADO.
  *
  * Uma porta só para "quanto vendeu": o bloco Vendas do negócio (botão
  * "Registrar venda" + a lista). O Valor do negócio, que o card mostra, é a soma
