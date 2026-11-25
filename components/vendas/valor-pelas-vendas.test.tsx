@@ -7,7 +7,9 @@
  *
  *  1. o formulário "Dados do negócio" não desenha campo de Valor;
  *  2. salvar o formulário NUNCA manda `value_cents` — um Salvar com a ficha
- *     aberta antes da venda apagaria a soma que o banco acabou de gravar.
+ *     aberta antes da venda apagaria a soma que o banco acabou de gravar;
+ *  3. no "Editar" do card, com venda registrada o Valor fica em leitura; sem
+ *     venda, é o campo de sempre.
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -16,7 +18,16 @@ import { EditLeadDialog } from "@/components/kanban/EditLeadDialog";
 import { LeadFieldsForm } from "@/components/kanban/LeadFieldsForm";
 import type { Lead } from "@/lib/types/leads";
 
-const estado = vi.hoisted(() => ({ editarLead: vi.fn() }));
+const estado = vi.hoisted(() => ({
+  vendas: [] as Array<{ id: string; valor_cents: number; currency: string }>,
+  editarLead: vi.fn(),
+}));
+
+// O "Editar" do card lê as vendas do negócio para travar o Valor quando há venda.
+vi.mock("@/hooks/vendas/useVendasRegistradas", () => ({
+  useVendasDoNegocio: () => ({ data: estado.vendas }),
+}));
+vi.mock("@/hooks/i18n/useLocaleDeData", () => ({ useTagDeIdioma: () => "pt-BR" }));
 
 vi.mock("@/hooks/auth/AuthProvider", () => ({
   useActiveOrg: () => ({ currency: "BRL", country: "BR", orgId: "org-1", role: "agent" }),
@@ -72,6 +83,7 @@ const negocio: Lead = {
 };
 
 beforeEach(() => {
+  estado.vendas = [];
   estado.editarLead.mockReset().mockResolvedValue({});
 });
 
