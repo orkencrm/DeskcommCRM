@@ -30,6 +30,7 @@ import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
 import type { ConversationWithContact } from "@/hooks/inbox/useConversationsRealtime";
 import { activityLabel, actorLabel, actorShape } from "@/lib/leads/activity-vocabulary";
+import { autorDaIntegracao, type IntegracaoDaAtividade } from "@/lib/leads/integracao-da-atividade";
 import { soChavesAlteradas } from "@/lib/leads/custom-fields-so-diff";
 import { rotuloDaRecorrencia } from "@/lib/leads/valor-recorrente";
 import { MOEDA_PADRAO } from "@/lib/money";
@@ -147,6 +148,11 @@ interface ActivityRow {
    * e aí a linha volta ao rótulo genérico.
    */
   performed_by_name?: string | null;
+  /**
+   * Quando um TOKEN de API agiu (#5160): o nome da integração, ou `nome: null`
+   * se não deu para ler. `null`/ausente = não foi token, segue o rótulo do ator.
+   */
+  integracao?: IntegracaoDaAtividade;
 }
 
 /**
@@ -1014,7 +1020,7 @@ export function CRMSidePanel({
       procurarNovoNegocio.current = false;
       return;
     }
-    let cancelled = false;
+    const controller = new AbortController();
 
     setErro(false);
 
@@ -1038,8 +1044,8 @@ export function CRMSidePanel({
             anuncio_mais_recente?: AnuncioMaisRecente | null;
             recusa_de_ofertas?: SituacaoDaRecusaDeOfertas;
           };
-        }>(`/api/v1/contacts/${contactId}/crm-summary`);
-        if (cancelled) return;
+        }>(`/api/v1/contacts/${contactId}/crm-summary`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
         setSummaryContactId(contactId);
         setEnrichment(r.data.enrichment ?? null);
         setEnrichmentError(r.data.enrichment_error ?? false);
@@ -1068,7 +1074,7 @@ export function CRMSidePanel({
         setAnuncios({ origem: r.data.anuncio_de_origem ?? null, recente: r.data.anuncio_mais_recente ?? null });
         setRecusaDeOfertas(r.data.recusa_de_ofertas);
       } catch {
-        if (cancelled) return;
+        if (controller.signal.aborted) return;
         // Falha NÃO vira lista vazia. Os dados ficam `null` e o painel diz que
         // não conseguiu ler — nunca que não há.
         setErro(true);
@@ -1084,7 +1090,7 @@ export function CRMSidePanel({
 
     void load();
     return () => {
-      cancelled = true;
+      controller.abort();
     };
     // AS DUAS DEPS NOVAS SÃO O REFETCH DA TROCA DE COMANDO.
     //
@@ -1604,8 +1610,13 @@ export function CRMSidePanel({
                     {t(activityLabel(a.type))}
                   </div>
                   {a.reason && <div className="mt-0.5 truncate text-muted-foreground">{t(a.reason)}</div>}
-                  <div className="text-muted-foreground">
-                    {a.performed_by_name ?? t(actorLabel(a.actor_kind))} · {shortDate(a.performed_at, localeDaData)}
+                  {/* `wrap-anywhere`: o nome do token vem do operador (até 100
+                      caracteres, sem espaço às vezes) e não pode empurrar o
+                      painel para os lados (#5160). */}
+                  <div className="text-muted-foreground wrap-anywhere">
+                    {a.performed_by_name ??
+                      (a.integracao ? autorDaIntegracao(a.integracao, t) : t(actorLabel(a.actor_kind)))}{" "}
+                    · {shortDate(a.performed_at, localeDaData)}
                   </div>
                 </li>
               ))}
