@@ -78,7 +78,7 @@ export function VendasDoNegocio({
       {isLoading ? (
         <p className={cn(texto, "text-text-muted")}>{t("Carregando…")}</p>
       ) : isError ? (
-        <p className={cn(texto, "text-danger")}>{t("Não foi possível carregar as vendas.")}</p>
+        <p className={cn(texto, "text-destructive")}>{t("Não foi possível carregar as vendas.")}</p>
       ) : lista.length === 0 ? (
         <p className={cn(texto, "text-text-muted")}>{t("Nenhuma venda registrada neste negócio.")}</p>
       ) : (
@@ -112,7 +112,7 @@ export function VendasDoNegocio({
                       if (window.confirm(t("Apagar esta venda? Ela sai do painel de vendas.")))
                         apagar.mutate(v.id, { onSuccess: () => aoMudar?.() });
                     }}
-                    className="shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-elevated hover:text-danger"
+                    className="shrink-0 rounded-md p-1 text-text-muted hover:bg-surface-elevated hover:text-destructive"
                   >
                     <Trash className="size-4" />
                   </button>
